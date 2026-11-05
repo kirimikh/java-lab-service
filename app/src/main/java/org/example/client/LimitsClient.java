@@ -13,7 +13,12 @@ public class LimitsClient {
 
     public Limits fetch(String id) throws InterruptedException {
         log.info("fetching limits {} on {}", id, Thread.currentThread());
-        Thread.sleep(1500); // имитация медленного внешнего сервиса
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            log.info("limits {} cancelled", id);
+            throw e;
+        }
         return new Limits(id, new BigDecimal("50000.00"));
     }
 }
