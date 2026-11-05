@@ -23,3 +23,10 @@ java {
 tasks.named<Test>("test") {
     useJUnitPlatform()
 }
+
+tasks.withType<JavaCompile> { options.compilerArgs.add("--enable-preview") }
+tasks.withType<Test> { jvmArgs("--enable-preview") }
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    jvmArgs("--enable-preview")
+}
+
