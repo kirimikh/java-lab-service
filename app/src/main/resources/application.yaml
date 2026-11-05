@@ -1,0 +1,20 @@
+lab:
+  greeting:
+    template: "Hello, %s!"
+    signed: false
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+lab:
+  greeting:
+    signed: true
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+lab:
+  greeting:
+    template: "[dev] Hello, %s!"
