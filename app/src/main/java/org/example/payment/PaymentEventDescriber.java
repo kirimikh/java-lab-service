@@ -6,6 +6,7 @@ public class PaymentEventDescriber {
             case Authorized(var id, var amount) -> "authorized %s: %s".formatted(id, amount);
             case Declined(var id, var reason) -> "declined %s: %s".formatted(id, reason);
             case Refunded(var id, var amount) -> "refunded %s: %s".formatted(id, amount);
+            case Chargeback(var id, var amount) -> "chargeback %s: %s".formatted(id, amount);
         };
     }
 
