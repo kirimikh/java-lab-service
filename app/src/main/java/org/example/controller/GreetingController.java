@@ -13,16 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 class GreetingController {
 
     private final GreetingProperties properties;
+    private static final Logger log = LoggerFactory.getLogger(GreetingController.class);
 
     GreetingController(GreetingProperties properties) {
         this.properties = properties;
-
-        final Logger log = LoggerFactory.getLogger(GreetingController.class);
-        log.info("handled on {}", Thread.currentThread());
     }
 
     @GetMapping("/greeting")
     GreetingResponse greeting(@RequestParam(defaultValue = "world") String name) {
+        log.info("handled on {}", Thread.currentThread());
         return new GreetingResponse(properties.template().formatted(name));
     }
 }
