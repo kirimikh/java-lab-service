@@ -1,0 +1,51 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.bat]
+end_of_line = crlf
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.md]
+# Two trailing spaces are a line break in Markdown
+trim_trailing_whitespace = false
+# Do not let the IDE rewrap paragraphs (it once broke links in README)
+ij_markdown_wrap_text_if_long = false
+ij_markdown_keep_line_breaks_inside_text_paragraphs = true
+
+[*.java]
+max_line_length = 100
+ij_visual_guides = 100
+ij_wrap_on_typing = true
+ij_java_continuation_indent_size = 8
+
+# "Chop down if long": if a construct does not fit into 100 columns,
+# every element goes on its own line
+ij_java_method_call_chain_wrap = on_every_item
+ij_java_wrap_first_method_in_call_chain = false
+ij_java_call_parameters_wrap = on_every_item
+ij_java_method_parameters_wrap = on_every_item
+ij_java_record_components_wrap = on_every_item
+ij_java_resource_list_wrap = on_every_item
+ij_java_array_initializer_wrap = on_every_item
+ij_java_ternary_operation_wrap = on_every_item
+ij_java_ternary_operation_signs_on_next_line = true
+
+# "Wrap if long": break only where needed
+ij_java_binary_operation_wrap = normal
+ij_java_binary_operation_sign_on_next_line = true
+ij_java_extends_list_wrap = normal
+ij_java_throws_list_wrap = normal
+ij_java_wrap_comments = true
+
+# Never collapse imports into wildcards
+ij_java_class_count_to_use_import_on_demand = 999
+ij_java_names_count_to_use_import_on_demand = 999
