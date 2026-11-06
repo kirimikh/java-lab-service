@@ -14,6 +14,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
     testImplementation("io.projectreactor:reactor-test")
+    testImplementation("io.projectreactor.tools:blockhound:1.0.18.RELEASE")
 }
 
 
@@ -34,4 +35,5 @@ tasks.withType<Test> { jvmArgs("--enable-preview") }
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
     jvmArgs("--enable-preview")
 }
+tasks.withType<Test> { jvmArgs("--enable-preview", "-XX:+AllowRedefinitionToAddDeleteMethods") }
 

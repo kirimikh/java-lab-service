@@ -28,7 +28,7 @@
 - [x] `GET /api/rates`: бесконечный поток котировок раз в секунду (Server-Sent Events)
 - [x] `GET /api/aggregate/{id}`: два источника параллельно через `Mono.zip`, таймаут 2 с и fallback
 - [x] Внешний вызов через неблокирующий `WebClient`
-- [ ] В продовом пути нет `.block()` и блокирующих вызовов на event loop
+- [x] В продовом пути нет `.block()` и блокирующих вызовов на event loop
 - [ ] Тесты на `StepVerifier`, включая таймаут на виртуальном времени
 - [ ] Заметка-сравнение reactive vs virtual threads (ниже)
 
