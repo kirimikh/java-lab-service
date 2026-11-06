@@ -1,22 +1,23 @@
 package org.example.client;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.example.config.LimitsClientProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.math.BigDecimal;
-import java.time.Duration;
 
 @Service
 public class LimitsClient {
 
-    private static final Logger log = LoggerFactory.getLogger(LimitsClient.class);
+    private final WebClient webClient;
+
+    public LimitsClient(WebClient.Builder builder, LimitsClientProperties properties) {
+        this.webClient = builder.baseUrl(properties.baseUrl()).build();
+    }
 
     public Mono<Limits> fetch(String id) {
-        Duration delay = id.equals("slow") ? Duration.ofSeconds(3) : Duration.ofMillis(1500);
-        return Mono.delay(delay)
-                .map(tick -> new Limits(id, new BigDecimal("50000.00")))
-                .doOnCancel(() -> log.info("limits {} cancelled", id));
+        return webClient.get()
+                .uri("/api/limits/{id}", id)
+                .retrieve()
+                .bodyToMono(Limits.class);
     }
 }
