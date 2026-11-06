@@ -73,8 +73,8 @@ curl 'http://localhost:8080/api/aggregate/42'
 
 ## Конфигурация
 
-Настройки описаны в [`application.yaml`](app/src/main/resources/application.yaml) и связаны с типизированным record [
-`GreetingProperties`](app/src/main/java/org/example/config/GreetingProperties.java) через `@ConfigurationProperties`,
+Настройки описаны в [`application.yaml`](app/src/main/resources/application.yaml) и связаны с типизированным record
+[`GreetingProperties`](app/src/main/java/org/example/config/GreetingProperties.java) через `@ConfigurationProperties`,
 без `@Value`.
 
 | Свойство                         | По умолчанию | Описание                                                     |
@@ -123,15 +123,15 @@ sequenceDiagram
     participant A as AggregateController
     participant U as UserClient
     participant L as LimitsClient
-    C ->> A: GET /api/aggregate/42
+    C->>A: GET /api/aggregate/42
     par fork
-        A ->> U: fetch(42) · 1 с
+        A->>U: fetch(42) · 1 с
     and fork
-        A ->> L: fetch(42) · 1,5 с
+        A->>L: fetch(42) · 1,5 с
     end
-    U -->> A: UserInfo
-    L -->> A: Limits
-    A -->> C: 200 OK за ~1,5 с, а не 2,5 с
+    U-->>A: UserInfo
+    L-->>A: Limits
+    A-->>C: 200 OK за ~1,5 с, а не 2,5 с
 ```
 
 Если одна подзадача падает, scope отменяет вторую, и эндпоинт отвечает ошибкой, не дожидаясь её:
@@ -142,19 +142,19 @@ sequenceDiagram
     participant A as AggregateController
     participant U as UserClient
     participant L as LimitsClient
-    C ->> A: GET /api/aggregate/fail
+    C->>A: GET /api/aggregate/fail
     par fork
-        A ->> U: fetch(fail)
+        A->>U: fetch(fail)
     and fork
-        A ->> L: fetch(fail)
+        A->>L: fetch(fail)
     end
-    U --x A: IllegalStateException через 0,2 с
-    A --x L: отмена, interrupt
-    A -->> C: 500 за ~0,25 с
+    U--xA: IllegalStateException через 0,2 с
+    A--xL: отмена, interrupt
+    A-->>C: 500 за ~0,25 с
 ```
 
-Preview-возможности включены флагом `--enable-preview` для компиляции, тестов и `bootRun` в [
-`app/build.gradle.kts`](app/build.gradle.kts).
+Preview-возможности включены флагом `--enable-preview` для компиляции, тестов и `bootRun`
+в [`app/build.gradle.kts`](app/build.gradle.kts).
 
 ### Нагрузка: virtual vs platform threads
 
@@ -191,27 +191,11 @@ public sealed interface PaymentEvent permits Authorized, Declined, Refunded, Cha
 ```
 
 ```java
-return switch(event){
-        case
-
-Authorized(var id, var amount) ->"authorized %s: %s".
-
-formatted(id, amount);
-    case
-
-Declined(var id, var reason)   ->"declined %s: %s".
-
-formatted(id, reason);
-    case
-
-Refunded(var id, var amount)   ->"refunded %s: %s".
-
-formatted(id, amount);
-    case
-
-Chargeback(var id, var amount) ->"chargeback %s: %s".
-
-formatted(id, amount);
+return switch (event) {
+    case Authorized(var id, var amount) -> "authorized %s: %s".formatted(id, amount);
+    case Declined(var id, var reason)   -> "declined %s: %s".formatted(id, reason);
+    case Refunded(var id, var amount)   -> "refunded %s: %s".formatted(id, amount);
+    case Chargeback(var id, var amount) -> "chargeback %s: %s".formatted(id, amount);
 };
 ```
 
