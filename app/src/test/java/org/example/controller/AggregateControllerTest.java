@@ -8,41 +8,53 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class AggregateControllerTest {
 
+    private static final Duration VERIFY_TIMEOUT = Duration.ofSeconds(1);
+    private static final Limits LIMITS = new Limits("42", new BigDecimal("50000.00"));
+
     private final LimitsClient limitsClient = mock(LimitsClient.class);
     private final AggregateController controller =
             new AggregateController(new UserClient(), limitsClient);
 
     @Test
-    void aggregatesBothSources() {
-        when(limitsClient.fetch("42")).thenReturn(Mono.just(new Limits("42",
-                new BigDecimal("50000.00"))));
+    void waitsForSlowestSourceOnly() {
+        when(limitsClient.fetch("42")).thenAnswer(inv -> Mono.delay(Duration.ofMillis(1500))
+                .thenReturn(LIMITS));
 
-        StepVerifier.create(controller.aggregate("42"))
-                .expectNextMatches(a -> a.user().id().equals("42")
-                        && a.limits().daily().equals(new BigDecimal("50000.00")))
-                .verifyComplete();
+        StepVerifier.withVirtualTime(() -> controller.aggregate("42"))
+                .expectSubscription()
+                .expectNoEvent(Duration.ofMillis(1500))
+                .expectNextMatches(a -> a.user().id().equals("42") && a.limits().equals(LIMITS))
+                .expectComplete()
+                .verify(VERIFY_TIMEOUT);
     }
 
     @Test
     void fallsBackOnTimeout() {
-        when(limitsClient.fetch("42")).thenReturn(Mono.never()); // источник так и не ответит
+        when(limitsClient.fetch("42")).thenReturn(Mono.never());
 
-        StepVerifier.create(controller.aggregate("42"))
+        StepVerifier.withVirtualTime(() -> controller.aggregate("42"))
+                .expectSubscription()
+                .expectNoEvent(Duration.ofSeconds(2))
                 .expectNext(Aggregate.fallback("42"))
-                .verifyComplete();
+                .expectComplete()
+                .verify(VERIFY_TIMEOUT);
     }
 
     @Test
     void propagatesSourceError() {
         when(limitsClient.fetch("fail")).thenReturn(Mono.never());
 
-        StepVerifier.create(controller.aggregate("fail"))
-                .verifyError(IllegalStateException.class);
+        StepVerifier.withVirtualTime(() -> controller.aggregate("fail"))
+                .expectSubscription()
+                .thenAwait(Duration.ofMillis(200))
+                .expectError(IllegalStateException.class)
+                .verify(VERIFY_TIMEOUT);
     }
 }
