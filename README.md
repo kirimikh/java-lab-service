@@ -114,44 +114,12 @@ LAB_GREETING_TEMPLATE='Hi, %s' ./gradlew bootRun
 HTTP-запросы обрабатываются на virtual threads: на каждый запрос в лог пишется `handled on VirtualThread[...]`.
 
 Эндпоинт `/api/aggregate/{id}` ходит в два независимых источника через `StructuredTaskScope`
-([JEP 505](https://openjdk.org/jeps/505), preview в Java 25). Подзадачи выполняются параллельно, поэтому ответ приходит
-за время самого медленного вызова, а не за сумму:
-
-```mermaid
-sequenceDiagram
-    participant C as Клиент
-    participant A as AggregateController
-    participant U as UserClient
-    participant L as LimitsClient
-    C->>A: GET /api/aggregate/42
-    par fork
-        A->>U: fetch(42) · 1 с
-    and fork
-        A->>L: fetch(42) · 1,5 с
-    end
-    U-->>A: UserInfo
-    L-->>A: Limits
-    A-->>C: 200 OK за ~1,5 с, а не 2,5 с
-```
+([JEP 505](https://openjdk.org/jeps/505), preview в Java 25): `UserClient` отвечает за 1 с, `LimitsClient` — за 1,5 с.
+Подзадачи выполняются параллельно, поэтому ответ приходит примерно за 1,5 с, то есть за время самого медленного
+вызова, а не за сумму 2,5 с.
 
 Если одна подзадача падает, scope отменяет вторую, и эндпоинт отвечает ошибкой, не дожидаясь её:
-
-```mermaid
-sequenceDiagram
-    participant C as Клиент
-    participant A as AggregateController
-    participant U as UserClient
-    participant L as LimitsClient
-    C->>A: GET /api/aggregate/fail
-    par fork
-        A->>U: fetch(fail)
-    and fork
-        A->>L: fetch(fail)
-    end
-    U--xA: IllegalStateException через 0,2 с
-    A--xL: отмена, interrupt
-    A-->>C: 500 за ~0,25 с
-```
+`/api/aggregate/fail` возвращает `500` примерно за 0,25 с вместо 1,5 с.
 
 Preview-возможности включены флагом `--enable-preview` для компиляции, тестов и `bootRun`
 в [`app/build.gradle.kts`](app/build.gradle.kts).
