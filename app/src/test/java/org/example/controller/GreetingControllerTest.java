@@ -4,31 +4,37 @@ import org.example.config.GreetingProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@WebMvcTest(GreetingController.class)
+@WebFluxTest(GreetingController.class)
 @EnableConfigurationProperties(GreetingProperties.class)
 class GreetingControllerTest {
 
     @Autowired
-    MockMvc mockMvc;
+    WebTestClient webTestClient;
 
     @Test
     void greetsByName() throws Exception {
-        mockMvc.perform(get("/api/greeting").param("name", "lab"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Hello, lab!"));
+        webTestClient.get()
+                .uri("/api/greeting?name=lab")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.message")
+                .isEqualTo("Hello, lab!");
     }
 
     @Test
     void greetsWorldByDefault() throws Exception {
-        mockMvc.perform(get("/api/greeting"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Hello, world!"));
+        webTestClient.get()
+                .uri("/api/greeting")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.message")
+                .isEqualTo("Hello, world!");
     }
 }
