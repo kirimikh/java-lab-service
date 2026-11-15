@@ -1,19 +1,30 @@
 package org.example.controller;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.example.client.LimitsClient;
 import org.example.client.UserClient;
+import org.example.metrics.AggregateMetrics;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.concurrent.StructuredTaskScope;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AggregateControllerTest {
 
+    private final SimpleMeterRegistry registry = new SimpleMeterRegistry();
+
     private final AggregateController controller =
-            new AggregateController(new UserClient(), new LimitsClient());
+            new AggregateController(
+                    new UserClient(),
+                    new LimitsClient(),
+                    new AggregateMetrics(registry)
+            );
 
     @Test
     void aggregatesBothSourcesInParallel() throws Exception {
