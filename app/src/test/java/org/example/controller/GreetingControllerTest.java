@@ -1,10 +1,12 @@
 package org.example.controller;
 
 import org.example.config.GreetingProperties;
+import org.example.metrics.GreetingMetrics;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -17,6 +19,9 @@ class GreetingControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @MockitoBean
+    GreetingMetrics metrics;
 
     @Test
     void greetsByName() throws Exception {

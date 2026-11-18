@@ -6,6 +6,11 @@ lab:
   greeting:
     template: "Hello, %s!"
     signed: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
 ---
 spring:
   config:
